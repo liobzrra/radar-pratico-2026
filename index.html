@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Pílulas | MVP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .input-field { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; transition: all 0.3s; }
+        .input-field:focus { border-color: #0f172a; ring: 2px; }
+        .output-card { background: white; border-left: 6px solid #0f172a; padding: 24px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #0f172a; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="text-slate-900">
+
+    <div class="max-w-3xl mx-auto p-6">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-black uppercase tracking-tighter">RADAR ESTRATÉGICO</h1>
+                <p class="text-xs text-slate-500 font-mono">DAAE MK I</p>
+            </div>
+            <button onclick="openConfig()" class="text-slate-400 hover:text-slate-900 transition-colors"><i class="fa-solid fa-gear"></i></button>
+        </div>
+
+        <!-- Input Area -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Cole o Link da Notícia (URL)</label>
+                <input type="text" id="inputUrl" class="input-field" placeholder="https://...">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Contexto Extra (Opcional)</label>
+                <textarea id="inputText" class="input-field h-24" placeholder="Se o link exigir assinatura, cole o texto da notícia aqui para ajudar a IA..."></textarea>
+            </div>
+
+            <button onclick="generatePill()" id="btnGenerate" class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-blue-600 transition-colors flex justify-center items-center gap-2">
+                <span>Gerar Pílula</span>
+            </button>
+        </div>
+
+        <!-- Output Area -->
+        <div id="outputContainer" class="hidden">
+            <div class="flex justify-between items-end mb-4">
+                <h3 class="text-sm font-bold text-slate-400 uppercase">Resultado Gerado</h3>
+                <button onclick="copyContent()" class="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                    <i class="fa-regular fa-copy"></i> Copiar Texto
+                </button>
+            </div>
+
+            <div class="output-card relative" id="finalCard">
+                <!-- Conteúdo -->
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span id="outScope" class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase">--</span>
+                            <span id="outSector" class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">--</span>
+                        </div>
+                        <h2 id="outTitle" class="text-xl font-black leading-tight mb-4">Título da Notícia</h2>
+                        <div id="outBody" class="space-y-3 text-sm text-slate-600 text-justify leading-relaxed">
+                            <!-- Parágrafos -->
+                        </div>
+                        <p class="mt-4 text-xs font-bold text-slate-400 uppercase" id="outSource">Fonte: -- | Data: --</p>
+                    </div>
+                    
+                    <!-- QR Code -->
+                    <div class="w-full md:w-32 flex flex-col items-center justify-center bg-slate-50 rounded-xl border border-slate-100 p-2">
+                        <div id="qrPlace" class="mb-2"></div>
+                        <p class="text-[8px] text-center text-slate-400 font-mono break-all leading-tight">Link Original</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Config Modal -->
+    <div id="configModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-sm shadow-2xl">
+            <h3 class="font-bold mb-4">Configuração API</h3>
+            <input type="password" id="apiKeyInput" class="input-field mb-4" placeholder="Cole sua chave Gemini API aqui...">
+            <div class="flex gap-2">
+                <button onclick="saveConfig()" class="flex-1 bg-slate-900 text-white py-2 rounded-lg font-bold">Salvar</button>
+                <button onclick="document.getElementById('configModal').classList.add('hidden')" class="px-4 py-2 text-slate-500 font-bold">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SETUP ---
+        function getApiKey() { return localStorage.getItem('gemini_api_key_mvp') || ''; }
+        
+        function openConfig() {
+            document.getElementById('configModal').classList.remove('hidden');
+            document.getElementById('apiKeyInput').value = getApiKey();
+        }
+
+        function saveConfig() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if(key) {
+                localStorage.setItem('gemini_api_key_mvp', key);
+                document.getElementById('configModal').classList.add('hidden');
+            }
+        }
+
+        // --- CORE LOGIC ---
+        async function generatePill() {
+            const apiKey = getApiKey();
+            if(!apiKey) { openConfig(); return; }
+
+            const url = document.getElementById('inputUrl').value.trim();
+            const text = document.getElementById('inputText').value.trim();
+
+            if(!url && !text) { alert("Por favor, insira pelo menos um URL ou Texto."); return; }
+
+            // UI Loading
+            const btn = document.getElementById('btnGenerate');
+            const originalBtn = btn.innerHTML;
+            btn.innerHTML = '<div class="loading-spinner"></div> Processando...';
+            btn.disabled = true;
+
+            try {
+                // Prompt Simples e Direto
+                const prompt = `
+                    Analise este conteúdo (URL: ${url} / Contexto: ${text}).
+                    Gere um resumo estruturado para newsletter de defesa/aeroespacial.
+                    REGRAS:
+                    1. Use português do Brasil.
+                    2. Gere um Título de impacto.
+                    3. Escreva EXATAMENTE 3 parágrafos:
+                       - P1: Contexto e o fato principal.
+                       - P2: Detalhes técnicos e operacionais.
+                       - P3: Impacto estratégico ou geopolítico.
+                    4. Identifique: Fonte, Data (se não achar, use Hoje), Setor (Aero/Defesa) e Escopo (Nacional/Internacional).
+                    
+                    Retorne APENAS JSON:
+                    {
+                        "title": "...",
+                        "p1": "...",
+                        "p2": "...",
+                        "p3": "...",
+                        "source": "...",
+                        "date": "...",
+                        "sector": "...",
+                        "scope": "..."
+                    }
+                `;
+
+                // Chamada API
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        tools: [{ google_search: {} }] // Ativa busca para ler a URL
+                    })
+                });
+
+                if(!response.ok) throw new Error("Erro na API");
+
+                const data = await response.json();
+                let rawJson = data.candidates[0].content.parts[0].text;
+                rawJson = rawJson.replace(/```json/g, '').replace(/```/g, '').trim();
+                const result = JSON.parse(rawJson);
+
+                // Renderizar
+                renderCard(result, url);
+
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao processar. Verifique a chave API ou o link.");
+            } finally {
+                btn.innerHTML = originalBtn;
+                btn.disabled = false;
+            }
+        }
+
+        function renderCard(data, url) {
+            document.getElementById('outputContainer').classList.remove('hidden');
+
+            document.getElementById('outTitle').innerText = data.title;
+            document.getElementById('outSector').innerText = data.sector;
+            document.getElementById('outScope').innerText = data.scope;
+            document.getElementById('outSource').innerText = `Fonte: ${data.source} | Data: ${data.date}`;
+            
+            const body = document.getElementById('outBody');
+            body.innerHTML = `
+                <p>${data.p1}</p>
+                <p>${data.p2}</p>
+                <p>${data.p3}</p>
+            `;
+
+            // Cor da borda baseada no setor
+            const card = document.getElementById('finalCard');
+            if(data.sector.toLowerCase().includes('aero')) {
+                card.style.borderLeftColor = '#0284c7'; // Azul
+                document.getElementById('outSector').className = "bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase";
+            } else {
+                card.style.borderLeftColor = '#4d7c0f'; // Verde
+                document.getElementById('outSector').className = "bg-lime-100 text-lime-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase";
+            }
+
+            // Gerar QR Code
+            const qrDiv = document.getElementById('qrPlace');
+            qrDiv.innerHTML = '';
+            // Usa o link inserido ou um placeholder se vazio
+            const finalUrl = url || "https://google.com"; 
+            new QRCode(qrDiv, {
+                text: finalUrl,
+                width: 100,
+                height: 100,
+                colorDark : "#0f172a",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.L
+            });
+        }
+
+        function copyContent() {
+            const title = document.getElementById('outTitle').innerText;
+            const p1 = document.querySelector('#outBody p:nth-child(1)').innerText;
+            const p2 = document.querySelector('#outBody p:nth-child(2)').innerText;
+            const p3 = document.querySelector('#outBody p:nth-child(3)').innerText;
+            const source = document.getElementById('outSource').innerText;
+            const url = document.getElementById('inputUrl').value;
+
+            const textToCopy = `TITLE: ${title}\n\n${p1}\n\n${p2}\n\n${p3}\n\n${source}\nLink: ${url}`;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert("Texto copiado para a área de transferência!");
+            });
+        }
+
+        // Init Check
+        if(!getApiKey()) openConfig();
+
+    </script>
+</body>
+</html>
