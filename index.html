@@ -3,79 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Pílulas | MVP</title>
+    <title>Radar Estratégico | DAAE MK I</title>
+    
+    <!-- Bibliotecas de Estilo e Funcionalidade -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Fontes e Ícones -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
-        .input-field { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; transition: all 0.3s; }
-        .input-field:focus { border-color: #0f172a; ring: 2px; }
-        .output-card { background: white; border-left: 6px solid #0f172a; padding: 24px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        .loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #0f172a; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+            color: #0f172a;
+        }
+        .input-field { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            border: 1px solid #e2e8f0; 
+            background: #ffffff;
+            outline: none; 
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        .input-field:focus { 
+            border-color: #0284c7; 
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1); 
+        }
+        .output-card { 
+            background: white; 
+            border-left: 6px solid #0f172a; 
+            padding: 32px; 
+            border-radius: 24px; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); 
+        }
+        .loading-spinner { 
+            border: 3px solid #f3f3f3; 
+            border-top: 3px solid #ffffff; 
+            border-radius: 50%; 
+            width: 18px; 
+            height: 18px; 
+            animation: spin 0.8s linear infinite; 
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .text-justify { text-align: justify; }
+        .btn-primary {
+            background-color: #0f172a;
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-primary:hover {
+            background-color: #0284c7;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.3);
+        }
+        .news-image {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            background-color: #f1f5f9;
+        }
     </style>
 </head>
-<body class="text-slate-900">
+<body class="antialiased">
 
-    <div class="max-w-3xl mx-auto p-6">
+    <div class="max-w-4xl mx-auto p-6 md:p-12">
         
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-8">
+        <!-- CABEÇALHO -->
+        <header class="flex justify-between items-start mb-12">
             <div>
-                <h1 class="text-2xl font-black uppercase tracking-tighter">RADAR ESTRATÉGICO</h1>
-                <p class="text-xs text-slate-500 font-mono">DAAE MK I</p>
+                <h1 class="text-3xl font-extrabold uppercase tracking-tighter leading-none">Radar Prático</h1>
+                <div class="flex items-center gap-2 mt-2">
+                    <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                    <p class="text-[11px] font-mono font-bold text-slate-400 tracking-[0.2em] uppercase">DAAE MK I</p>
+                </div>
             </div>
-            <button onclick="openConfig()" class="text-slate-400 hover:text-slate-900 transition-colors"><i class="fa-solid fa-gear"></i></button>
-        </div>
+            <button onclick="openConfig()" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:border-slate-400 transition-all shadow-sm">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+        </header>
 
-        <!-- Input Area -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
-            <div class="mb-4">
-                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Cole o Link da Notícia (URL)</label>
+        <!-- ÁREA DE ENTRADA -->
+        <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-10">
+            <div class="mb-6">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Link da Notícia (URL)</label>
                 <input type="text" id="inputUrl" class="input-field" placeholder="https://...">
             </div>
             
-            <div class="mb-4">
-                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Contexto Extra (Opcional)</label>
-                <textarea id="inputText" class="input-field h-24" placeholder="Se o link exigir assinatura, cole o texto da notícia aqui para ajudar a IA..."></textarea>
+            <div class="mb-8">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Contexto ou Texto (Opcional)</label>
+                <textarea id="inputText" class="input-field h-32 resize-none" placeholder="Cole o texto aqui se necessário..."></textarea>
             </div>
 
-            <button onclick="generatePill()" id="btnGenerate" class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-blue-600 transition-colors flex justify-center items-center gap-2">
-                <span>Gerar Pílula</span>
+            <button onclick="generatePill()" id="btnGenerate" class="w-full btn-primary font-black py-4 rounded-2xl flex justify-center items-center gap-3 uppercase tracking-widest text-sm">
+                <i class="fa-solid fa-bolt"></i>
+                <span>Gerar Relatório</span>
             </button>
         </div>
 
-        <!-- Output Area -->
+        <!-- ÁREA DE RESULTADO -->
         <div id="outputContainer" class="hidden">
-            <div class="flex justify-between items-end mb-4">
-                <h3 class="text-sm font-bold text-slate-400 uppercase">Resultado Gerado</h3>
-                <button onclick="copyContent()" class="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">
-                    <i class="fa-regular fa-copy"></i> Copiar Texto
+            <div class="flex justify-between items-center mb-6 px-2">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Relatório Consolidado</h3>
+                <button onclick="copyContent()" class="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-2">
+                    <i class="fa-regular fa-copy"></i> Copiar Tudo
                 </button>
             </div>
 
-            <div class="output-card relative" id="finalCard">
-                <!-- Conteúdo -->
-                <div class="flex flex-col md:flex-row gap-6">
+            <div class="output-card" id="finalCard">
+                <!-- Imagem da Notícia -->
+                <img id="outImage" src="" alt="Destaque da Notícia" class="news-image hidden" onerror="this.classList.add('hidden')">
+
+                <div class="flex flex-col md:flex-row gap-10">
                     <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span id="outScope" class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase">--</span>
-                            <span id="outSector" class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">--</span>
+                        <div class="flex items-center gap-3 mb-4">
+                            <span id="outScope" class="bg-slate-100 text-slate-600 text-[9px] font-black px-3 py-1 rounded-full uppercase border border-slate-200">--</span>
+                            <span id="outSector" class="text-[9px] font-black px-3 py-1 rounded-full uppercase border">--</span>
                         </div>
-                        <h2 id="outTitle" class="text-xl font-black leading-tight mb-4">Título da Notícia</h2>
-                        <div id="outBody" class="space-y-3 text-sm text-slate-600 text-justify leading-relaxed">
+                        <h2 id="outTitle" class="text-2xl font-black leading-tight text-slate-900 mb-6 uppercase tracking-tight">--</h2>
+                        
+                        <div id="outBody" class="space-y-6 text-slate-600 text-base leading-relaxed text-justify">
                             <!-- Parágrafos -->
                         </div>
-                        <p class="mt-4 text-xs font-bold text-slate-400 uppercase" id="outSource">Fonte: -- | Data: --</p>
+                        
+                        <div class="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" id="outSource">Fonte: -- | Data: --</p>
+                        </div>
                     </div>
                     
-                    <!-- QR Code -->
-                    <div class="w-full md:w-32 flex flex-col items-center justify-center bg-slate-50 rounded-xl border border-slate-100 p-2">
-                        <div id="qrPlace" class="mb-2"></div>
-                        <p class="text-[8px] text-center text-slate-400 font-mono break-all leading-tight">Link Original</p>
+                    <!-- Validação QR -->
+                    <div class="w-full md:w-40 flex flex-col items-center justify-center">
+                        <div class="bg-white p-3 rounded-2xl shadow-xl border border-slate-100 mb-3">
+                            <div id="qrPlace"></div>
+                        </div>
+                        <p class="text-[9px] text-center text-slate-300 font-mono font-bold uppercase tracking-tighter">Validar Fonte</p>
                     </div>
                 </div>
             </div>
@@ -83,21 +149,28 @@
 
     </div>
 
-    <!-- Config Modal -->
-    <div id="configModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-sm shadow-2xl">
-            <h3 class="font-bold mb-4">Configuração API</h3>
-            <input type="password" id="apiKeyInput" class="input-field mb-4" placeholder="Cole sua chave Gemini API aqui...">
-            <div class="flex gap-2">
-                <button onclick="saveConfig()" class="flex-1 bg-slate-900 text-white py-2 rounded-lg font-bold">Salvar</button>
-                <button onclick="document.getElementById('configModal').classList.add('hidden')" class="px-4 py-2 text-slate-500 font-bold">Cancelar</button>
+    <!-- MODAL DE CONFIGURAÇÃO -->
+    <div id="configModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-md shadow-2xl">
+            <h3 class="text-xl font-black text-slate-900 uppercase tracking-tight mb-4">Configuração API</h3>
+            <p class="text-sm text-slate-500 mb-6">
+                Insira sua chave **Gemini API** para ativar a busca e análise.
+            </p>
+            <input type="password" id="apiKeyInput" class="input-field mb-2" placeholder="Cole sua chave aqui...">
+            <p class="text-[11px] text-slate-400 font-medium mb-8">
+                Ainda não possui uma chave? 
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-600 font-bold hover:underline">Gere uma gratuitamente aqui</a>
+            </p>
+            <div class="flex gap-3">
+                <button onclick="saveConfig()" class="flex-1 btn-primary py-3 rounded-xl font-bold text-sm uppercase">Salvar</button>
+                <button onclick="document.getElementById('configModal').classList.add('hidden')" class="px-6 py-3 text-slate-400 font-bold text-sm uppercase">Fechar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- SETUP ---
-        function getApiKey() { return localStorage.getItem('gemini_api_key_mvp') || ''; }
+        const apiKeyId = 'gemini_api_key_practical_radar';
+        function getApiKey() { return localStorage.getItem(apiKeyId) || ''; }
         
         function openConfig() {
             document.getElementById('configModal').classList.remove('hidden');
@@ -107,77 +180,77 @@
         function saveConfig() {
             const key = document.getElementById('apiKeyInput').value.trim();
             if(key) {
-                localStorage.setItem('gemini_api_key_mvp', key);
+                localStorage.setItem(apiKeyId, key);
                 document.getElementById('configModal').classList.add('hidden');
+                alert("Configuração salva!");
             }
         }
 
-        // --- CORE LOGIC ---
+        async function fetchWithRetry(url, options, retries = 5, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) return await response.json();
+                    if (response.status !== 429) throw new Error(`HTTP ${response.status}`);
+                } catch (err) { if (i === retries - 1) throw err; }
+                await new Promise(r => setTimeout(r, delay));
+                delay *= 2;
+            }
+        }
+
         async function generatePill() {
             const apiKey = getApiKey();
             if(!apiKey) { openConfig(); return; }
 
             const url = document.getElementById('inputUrl').value.trim();
-            const text = document.getElementById('inputText').value.trim();
+            const textContext = document.getElementById('inputText').value.trim();
 
-            if(!url && !text) { alert("Por favor, insira pelo menos um URL ou Texto."); return; }
+            if(!url && !textContext) { alert("Forneça um link ou texto."); return; }
 
-            // UI Loading
             const btn = document.getElementById('btnGenerate');
             const originalBtn = btn.innerHTML;
-            btn.innerHTML = '<div class="loading-spinner"></div> Processando...';
+            btn.innerHTML = '<div class="loading-spinner"></div> Analisando...';
             btn.disabled = true;
 
             try {
-                // Prompt Simples e Direto
                 const prompt = `
-                    Analise este conteúdo (URL: ${url} / Contexto: ${text}).
-                    Gere um resumo estruturado para newsletter de defesa/aeroespacial.
+                    Analise: (URL: ${url} / Texto: ${textContext}).
                     REGRAS:
-                    1. Use português do Brasil.
-                    2. Gere um Título de impacto.
-                    3. Escreva EXATAMENTE 3 parágrafos (por volta de 60 a 80 palavras cada):
-                       - P1: Contexto e o fato principal.
-                       - P2: Detalhes técnicos e operacionais.
-                       - P3: Impacto estratégico ou geopolítico.
-                    4. Identifique: Fonte, Data (se não achar, use Hoje), Setor (Aero/Defesa) e Escopo (Nacional/Internacional).
-                    
-                    Retorne APENAS JSON:
+                    1. Escreva 3 parágrafos técnicos (60-80 palavras cada).
+                    2. P1: Contexto/Fato. P2: Detalhes Técnicos. P3: Impacto Estratégico.
+                    3. Identifique Fonte, Data, Setor (Aero/Defesa), Escopo (Nacional/Internacional).
+                    4. IDENTIFIQUE UMA URL DE IMAGEM representativa (thumbnail/principal) no campo "image".
+
+                    RETORNE APENAS JSON:
                     {
                         "title": "...",
-                        "p1": "...",
-                        "p2": "...",
-                        "p3": "...",
-                        "source": "...",
-                        "date": "...",
-                        "sector": "...",
-                        "scope": "..."
+                        "p1": "...", "p2": "...", "p3": "...",
+                        "source": "...", "date": "...",
+                        "sector": "...", "scope": "...",
+                        "image": "URL_DA_IMAGEM"
                     }
                 `;
 
-                // Chamada API
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                
+                const data = await fetchWithRetry(apiUrl, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         contents: [{ parts: [{ text: prompt }] }],
-                        tools: [{ google_search: {} }] // Ativa busca para ler a URL
+                        tools: [{ "google_search": {} }]
                     })
                 });
 
-                if(!response.ok) throw new Error("Erro na API");
+                let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const result = JSON.parse(rawText);
 
-                const data = await response.json();
-                let rawJson = data.candidates[0].content.parts[0].text;
-                rawJson = rawJson.replace(/```json/g, '').replace(/```/g, '').trim();
-                const result = JSON.parse(rawJson);
-
-                // Renderizar
                 renderCard(result, url);
 
             } catch (error) {
                 console.error(error);
-                alert("Erro ao processar. Verifique a chave API ou o link.");
+                alert("Erro no processamento. Verifique a chave API.");
             } finally {
                 btn.innerHTML = originalBtn;
                 btn.disabled = false;
@@ -192,36 +265,37 @@
             document.getElementById('outScope').innerText = data.scope;
             document.getElementById('outSource').innerText = `Fonte: ${data.source} | Data: ${data.date}`;
             
-            const body = document.getElementById('outBody');
-            body.innerHTML = `
-                <p>${data.p1}</p>
-                <p>${data.p2}</p>
-                <p>${data.p3}</p>
-            `;
-
-            // Cor da borda baseada no setor
-            const card = document.getElementById('finalCard');
-            if(data.sector.toLowerCase().includes('aero')) {
-                card.style.borderLeftColor = '#0284c7'; // Azul
-                document.getElementById('outSector').className = "bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase";
+            // Tratamento da Imagem
+            const imgEl = document.getElementById('outImage');
+            if(data.image && data.image.startsWith('http')) {
+                imgEl.src = data.image;
+                imgEl.classList.remove('hidden');
             } else {
-                card.style.borderLeftColor = '#4d7c0f'; // Verde
-                document.getElementById('outSector').className = "bg-lime-100 text-lime-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase";
+                imgEl.classList.add('hidden');
             }
 
-            // Gerar QR Code
+            document.getElementById('outBody').innerHTML = `
+                <p class="font-medium">${data.p1}</p>
+                <p class="font-medium">${data.p2}</p>
+                <p class="text-slate-900 font-semibold">${data.p3}</p>
+            `;
+
+            const card = document.getElementById('finalCard');
+            const sectorBadge = document.getElementById('outSector');
+            
+            if(data.sector.toLowerCase().includes('aero')) {
+                card.style.borderLeftColor = '#0284c7';
+                sectorBadge.className = "text-[9px] font-black px-3 py-1 rounded-full uppercase border border-blue-200 bg-blue-50 text-blue-700";
+            } else {
+                card.style.borderLeftColor = '#4d7c0f';
+                sectorBadge.className = "text-[9px] font-black px-3 py-1 rounded-full uppercase border border-lime-200 bg-lime-50 text-lime-700";
+            }
+
             const qrDiv = document.getElementById('qrPlace');
             qrDiv.innerHTML = '';
-            // Usa o link inserido ou um placeholder se vazio
-            const finalUrl = url || "https://google.com"; 
-            new QRCode(qrDiv, {
-                text: finalUrl,
-                width: 100,
-                height: 100,
-                colorDark : "#0f172a",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.L
-            });
+            new QRCode(qrDiv, { text: url || "https://google.com", width: 120, height: 120, colorDark : "#0f172a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
+
+            window.scrollTo({ top: document.getElementById('outputContainer').offsetTop - 50, behavior: 'smooth' });
         }
 
         function copyContent() {
@@ -231,17 +305,12 @@
             const p3 = document.querySelector('#outBody p:nth-child(3)').innerText;
             const source = document.getElementById('outSource').innerText;
             const url = document.getElementById('inputUrl').value;
-
-            const textToCopy = `TITLE: ${title}\n\n${p1}\n\n${p2}\n\n${p3}\n\n${source}\nLink: ${url}`;
-            
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                alert("Texto copiado para a área de transferência!");
-            });
+            const fullText = `${title}\n\n${p1}\n\n${p2}\n\n${p3}\n\n${source}\nLink: ${url}`;
+            const el = document.createElement('textarea'); el.value = fullText; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+            alert("Texto copiado!");
         }
 
-        // Init Check
-        if(!getApiKey()) openConfig();
-
+        window.onload = () => { if(!getApiKey()) openConfig(); };
     </script>
 </body>
 </html>
