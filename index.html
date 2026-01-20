@@ -60,14 +60,8 @@
             transform: translateY(-1px);
             box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.3);
         }
-        .news-image {
-            width: 100%;
-            height: 320px;
-            object-fit: cover;
-            border-radius: 20px;
-            margin-bottom: 28px;
-            background-color: #f1f5f9;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        .btn-primary:active {
+            transform: scale(0.98);
         }
     </style>
 </head>
@@ -117,9 +111,6 @@
             </div>
 
             <div class="output-card" id="finalCard">
-                <!-- Imagem da Notícia -->
-                <img id="outImage" src="" alt="Imagem do Evento" class="news-image hidden" onerror="this.classList.add('hidden')">
-
                 <div class="flex flex-col md:flex-row gap-10">
                     <div class="flex-1">
                         <div class="flex items-center gap-3 mb-4">
@@ -179,6 +170,7 @@
     </div>
 
     <script>
+        // --- CONFIGURAÇÃO ---
         const apiKeyId = 'gemini_api_key_practical_radar_v2';
         const getApiKey = () => localStorage.getItem(apiKeyId) || '';
         
@@ -196,6 +188,7 @@
             }
         }
 
+        // --- MOTOR DE INTELIGÊNCIA ---
         async function fetchWithRetry(url, options, retries = 5, delay = 1000) {
             for (let i = 0; i < retries; i++) {
                 try {
@@ -233,35 +226,33 @@
 
             try {
                 const prompt = `
-                    Atue como um Analista de Inteligência Estratégica.
+                    Atue como um Analista de Inteligência Estratégica RÍGIDO.
                     FONTE: (Link: ${url} / Texto: ${textContext}).
 
                     MISSÃO:
-                    Gere um resumo executivo direto e técnico sobre o fato. 
+                    Gere um resumo executivo direto e técnico sobre o fato, baseando-se EXCLUSIVAMENTE na fonte fornecida. 
                     - Não escreva "O site informa...", "A notícia discute...", "Segundo a matéria...".
                     - Escreva diretamente o acontecimento como se você estivesse reportando o fato para um superior.
-                    - Fidelidade absoluta aos dados da fonte. Proibido opinar ou especular.
+                    - Fidelidade absoluta aos dados da fonte. Proibido adicionar informações externas, opiniões ou especulações.
 
                     ESTRUTURA DE CONTEÚDO (Obrigatória):
                     1. Três parágrafos robustos (60-80 palavras cada).
                     2. P1 (O FATO): Relate diretamente o acontecimento, data e principais envolvidos.
-                    3. P2 (DETALHES TÉCNICOS): Relate especificações, números, tecnologias ou protocolos operacionais citados.
-                    4. P3 (ESTRATÉGIA): Relate o impacto estratégico ou desdobramentos citados na fonte.
+                    3. P2 (DETALHES TÉCNICOS): Relate especificações, números, tecnologias ou protocolos operacionais citados na fonte.
+                    4. P3 (ESTRATÉGIA): Relate o impacto estratégico ou desdobramentos citados explicitamente na fonte.
                     
                     DADOS TÉCNICOS:
                     - Título de impacto (Máx 10 palavras).
-                    - FONTE FORMATADA: "Site.com (DD/MM/AAAA)". Extraia o domínio e a data da publicação.
+                    - FONTE FORMATADA: "Site.com (DD/MM/AAAA)". Extraia o domínio principal da URL e a data de publicação da matéria.
                     - Setor: Aeroespacial ou Defesa.
                     - Escopo: Nacional ou Internacional.
-                    - Campo "image": Identifique a URL da imagem principal/destaque.
 
                     RETORNE APENAS JSON PURO:
                     {
                         "title": "...",
                         "p1": "...", "p2": "...", "p3": "...",
                         "source_formatted": "Dominio.com (DD/MM/AAAA)",
-                        "sector": "...", "scope": "...",
-                        "image": "URL"
+                        "sector": "...", "scope": "..."
                     }
                 `;
 
@@ -299,14 +290,6 @@
             document.getElementById('outScope').innerText = data.scope;
             document.getElementById('outSource').innerText = `Fonte: ${data.source_formatted}`;
             
-            const imgEl = document.getElementById('outImage');
-            if(data.image && data.image.startsWith('http')) {
-                imgEl.src = data.image;
-                imgEl.classList.remove('hidden');
-            } else {
-                imgEl.classList.add('hidden');
-            }
-
             const body = document.getElementById('outBody');
             body.innerHTML = `
                 <p class="text-slate-600">${data.p1}</p>
