@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -86,8 +86,8 @@
         <!-- ÁREA DE ENTRADA -->
         <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-10">
             <div class="mb-6">
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Ligação da Notícia (URL)</label>
-                <input type="text" id="inputUrl" class="input-field" placeholder="https://...">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Link da Notícia (URL)</label>
+                <input type="text" id="inputUrl" class="input-field" placeholder="https://www.defesanet.com.br/...">
             </div>
             
             <div class="mb-8">
@@ -152,7 +152,7 @@
             </div>
             
             <p class="text-sm text-slate-500 mb-6 leading-relaxed text-justify">
-                Insira a sua chave **Gemini API** para ativar o motor de inteligência do DAAE. A chave é guardada localmente e não sai do seu navegador.
+                Insira a sua chave **Gemini API** para ativar o motor de inteligência do DAAE. A chave é salva localmente e não sai do seu navegador.
             </p>
 
             <input type="password" id="apiKeyInput" class="input-field mb-2" placeholder="Cole a sua chave aqui...">
@@ -163,7 +163,7 @@
             </p>
 
             <div class="flex gap-3">
-                <button onclick="saveConfig()" class="flex-1 btn-primary py-3 rounded-xl font-bold text-sm uppercase tracking-widest">Guardar</button>
+                <button onclick="saveConfig()" class="flex-1 btn-primary py-3 rounded-xl font-bold text-sm uppercase tracking-widest">Salvar</button>
                 <button onclick="document.getElementById('configModal').classList.add('hidden')" class="px-6 py-3 text-slate-400 font-bold text-sm uppercase tracking-widest hover:text-slate-900 transition-colors">Fechar</button>
             </div>
         </div>
@@ -221,7 +221,7 @@
 
             const btn = document.getElementById('btnGenerate');
             const originalBtn = btn.innerHTML;
-            btn.innerHTML = '<div class="loading-spinner"></div> A Intercetar Sinal...';
+            btn.innerHTML = '<div class="loading-spinner"></div> Interceptando Sinal...';
             btn.disabled = true;
 
             try {
@@ -230,19 +230,20 @@
                     FONTE: (Link: ${url} / Texto: ${textContext}).
 
                     MISSÃO:
-                    Gere um resumo executivo direto e técnico sobre o fato, baseando-se EXCLUSIVAMENTE na fonte fornecida. 
+                    Gere um resumo executivo direto e técnico sobre o fato, baseando-se EXCLUSIVAMENTE na fonte fornecida.
+                    - Use Português do Brasil (PT-BR).
                     - Não escreva "O site informa...", "A notícia discute...", "Segundo a matéria...".
-                    - Escreva diretamente o acontecimento como se você estivesse reportando o fato para um superior.
+                    - Resuma a notícia.
                     - Fidelidade absoluta aos dados da fonte. Proibido adicionar informações externas, opiniões ou especulações.
 
-                    ESTRUTURA DE CONTEÚDO (Obrigatória):
+                    ESTRUTURA DE CONTEÚDO (busque sempre essa):
                     1. Três parágrafos robustos (60-80 palavras cada).
                     2. P1 (O FATO): Relate diretamente o acontecimento, data e principais envolvidos.
                     3. P2 (DETALHES TÉCNICOS): Relate especificações, números, tecnologias ou protocolos operacionais citados na fonte.
                     4. P3 (ESTRATÉGIA): Relate o impacto estratégico ou desdobramentos citados explicitamente na fonte.
                     
                     DADOS TÉCNICOS:
-                    - Título de impacto (Máx 10 palavras).
+                    - Título da matéria.
                     - FONTE FORMATADA: "Site.com (DD/MM/AAAA)". Extraia o domínio principal da URL e a data de publicação da matéria.
                     - Setor: Aeroespacial ou Defesa.
                     - Escopo: Nacional ou Internacional.
@@ -326,7 +327,7 @@
             const source = document.getElementById('outSource').innerText;
             const url = document.getElementById('inputUrl').value;
 
-            const fullText = `*${title}*\n\n${paragraphs.join('\n\n')}\n\n${source}\nLigação: ${url}`;
+            const fullText = `*${title}*\n\n${paragraphs.join('\n\n')}\n\n${source}\nLink: ${url}`;
             
             const el = document.createElement('textarea'); 
             el.value = fullText; 
