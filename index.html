@@ -62,7 +62,7 @@
         }
         .news-image {
             width: 100%;
-            height: 300px;
+            height: 320px;
             object-fit: cover;
             border-radius: 20px;
             margin-bottom: 28px;
@@ -78,7 +78,7 @@
         <!-- CABEÇALHO -->
         <header class="flex justify-between items-start mb-12">
             <div>
-                <h1 class="text-3xl font-extrabold uppercase tracking-tighter leading-none">Radar Prático</h1>
+                <h1 class="text-3xl font-extrabold uppercase tracking-tighter leading-none text-slate-900">Radar Prático</h1>
                 <div class="flex items-center gap-2 mt-2">
                     <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
                     <p class="text-[11px] font-mono font-bold text-slate-400 tracking-[0.2em] uppercase">DAAE MK I</p>
@@ -93,24 +93,24 @@
         <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-10">
             <div class="mb-6">
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Ligação da Notícia (URL)</label>
-                <input type="text" id="inputUrl" class="input-field" placeholder="https://www.defesanet.com.br/...">
+                <input type="text" id="inputUrl" class="input-field" placeholder="https://...">
             </div>
             
             <div class="mb-8">
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Contexto ou Texto (Opcional)</label>
-                <textarea id="inputText" class="input-field h-32 resize-none" placeholder="Cole aqui o conteúdo caso a página exija assinatura para garantir fidelidade absoluta..."></textarea>
+                <textarea id="inputText" class="input-field h-32 resize-none" placeholder="Cole aqui o texto se a página for fechada. Isso garantirá um resumo fiel e direto..."></textarea>
             </div>
 
             <button onclick="generatePill()" id="btnGenerate" class="w-full btn-primary font-black py-4 rounded-2xl flex justify-center items-center gap-3 uppercase tracking-widest text-sm">
                 <i class="fa-solid fa-bolt"></i>
-                <span>Processar Inteligência</span>
+                <span>Gerar Resumo Técnico</span>
             </button>
         </div>
 
         <!-- ÁREA DE RESULTADO -->
         <div id="outputContainer" class="hidden animate-fade-in">
             <div class="flex justify-between items-center mb-6 px-2">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Pílula Gerada</h3>
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Resumo Consolidado</h3>
                 <button onclick="copyContent()" class="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-2 transition-colors">
                     <i class="fa-regular fa-copy"></i> Copiar Conteúdo
                 </button>
@@ -118,7 +118,7 @@
 
             <div class="output-card" id="finalCard">
                 <!-- Imagem da Notícia -->
-                <img id="outImage" src="" alt="Imagem de Destaque" class="news-image hidden" onerror="this.classList.add('hidden')">
+                <img id="outImage" src="" alt="Imagem do Evento" class="news-image hidden" onerror="this.classList.add('hidden')">
 
                 <div class="flex flex-col md:flex-row gap-10">
                     <div class="flex-1">
@@ -129,7 +129,7 @@
                         <h2 id="outTitle" class="text-2xl font-black leading-tight text-slate-900 mb-6 uppercase tracking-tight">--</h2>
                         
                         <div id="outBody" class="space-y-6 text-slate-600 text-base leading-relaxed text-justify font-medium">
-                            <!-- Parágrafos Analíticos -->
+                            <!-- Pílula analítica gerada aqui -->
                         </div>
                         
                         <div class="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
@@ -142,7 +142,7 @@
                         <div class="bg-white p-3 rounded-2xl shadow-xl border border-slate-100 mb-3">
                             <div id="qrPlace"></div>
                         </div>
-                        <p class="text-[9px] text-center text-slate-300 font-mono font-bold uppercase tracking-tighter">Validar Fonte</p>
+                        <p class="text-[9px] text-center text-slate-300 font-mono font-bold uppercase tracking-tighter">Consultar Fonte</p>
                     </div>
                 </div>
             </div>
@@ -160,13 +160,12 @@
                 <h3 class="text-xl font-black text-slate-900 uppercase tracking-tight">Configuração API</h3>
             </div>
             
-            <p class="text-sm text-slate-500 mb-6 leading-relaxed">
-                Insira a sua chave **Gemini API** para ativar o motor de inteligência. A chave será guardada apenas no seu navegador.
+            <p class="text-sm text-slate-500 mb-6 leading-relaxed text-justify">
+                Insira a sua chave **Gemini API** para ativar o motor de inteligência do DAAE. A chave é guardada localmente e não sai do seu navegador.
             </p>
 
             <input type="password" id="apiKeyInput" class="input-field mb-2" placeholder="Cole a sua chave aqui...">
             
-            <!-- LINK PARA GERAR CHAVE -->
             <p class="text-[11px] text-slate-400 font-medium mb-8">
                 Ainda não tem uma chave? 
                 <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-600 font-bold hover:underline">Gere uma gratuitamente no Google AI Studio <i class="fa-solid fa-external-link text-[9px]"></i></a>
@@ -180,8 +179,7 @@
     </div>
 
     <script>
-        // --- CONFIGURAÇÃO ---
-        const apiKeyId = 'gemini_api_key_practical_radar';
+        const apiKeyId = 'gemini_api_key_practical_radar_v2';
         const getApiKey = () => localStorage.getItem(apiKeyId) || '';
         
         function openConfig() {
@@ -194,11 +192,10 @@
             if(key) {
                 localStorage.setItem(apiKeyId, key);
                 document.getElementById('configModal').classList.add('hidden');
-                alert("Configuração guardada com sucesso!");
+                alert("Motor DAAE ativo.");
             }
         }
 
-        // --- MOTOR DE INTELIGÊNCIA ---
         async function fetchWithRetry(url, options, retries = 5, delay = 1000) {
             for (let i = 0; i < retries; i++) {
                 try {
@@ -211,6 +208,15 @@
             }
         }
 
+        function cleanJson(text) {
+            const firstBracket = text.indexOf('{');
+            const lastBracket = text.lastIndexOf('}');
+            if (firstBracket !== -1 && lastBracket !== -1) {
+                return text.substring(firstBracket, lastBracket + 1);
+            }
+            return text;
+        }
+
         async function generatePill() {
             const apiKey = getApiKey();
             if(!apiKey) { openConfig(); return; }
@@ -218,42 +224,42 @@
             const url = document.getElementById('inputUrl').value.trim();
             const textContext = document.getElementById('inputText').value.trim();
 
-            if(!url && !textContext) { alert("Por favor, forneça uma ligação ou texto."); return; }
+            if(!url && !textContext) { alert("Por favor, forneça uma URL ou texto para análise."); return; }
 
             const btn = document.getElementById('btnGenerate');
             const originalBtn = btn.innerHTML;
-            btn.innerHTML = '<div class="loading-spinner"></div> A Interceptar Sinal...';
+            btn.innerHTML = '<div class="loading-spinner"></div> A Intercetar Sinal...';
             btn.disabled = true;
 
             try {
                 const prompt = `
-                    Atue como um Analista de Inteligência Estratégica RÍGIDO.
-                    FONTE: (URL: ${url} / Texto Fornecido: ${textContext}).
+                    Atue como um Analista de Inteligência Estratégica.
+                    FONTE: (Link: ${url} / Texto: ${textContext}).
 
                     MISSÃO:
-                    Resuma a fonte seguindo ESTRITAMENTE o que está escrito nela. 
-                    - É PROIBIDO adicionar informações externas ao conteúdo fornecido.
-                    - É PROIBIDO emitir opiniões, julgamentos ou especulações.
-                    - Mantenha um tom puramente técnico, formal e factual.
+                    Gere um resumo executivo direto e técnico sobre o fato. 
+                    - Não escreva "O site informa...", "A notícia discute...", "Segundo a matéria...".
+                    - Escreva diretamente o acontecimento como se você estivesse reportando o fato para um superior.
+                    - Fidelidade absoluta aos dados da fonte. Proibido opinar ou especular.
 
-                    REGRAS DE CONTEÚDO:
-                    1. Escreva EXATAMENTE 3 parágrafos robustos (mínimo 60 palavras cada).
-                    2. P1 (CONTEXTO): Descrição objetiva do fato principal e agentes citados.
-                    3. P2 (TÉCNICO): Dados operacionais, tecnologias, números ou cronogramas presentes na fonte.
-                    4. P3 (ESTRATÉGIA): Impacto ou desdobramento citado explicitamente pela fonte.
+                    ESTRUTURA DE CONTEÚDO (Obrigatória):
+                    1. Três parágrafos robustos (60-80 palavras cada).
+                    2. P1 (O FATO): Relate diretamente o acontecimento, data e principais envolvidos.
+                    3. P2 (DETALHES TÉCNICOS): Relate especificações, números, tecnologias ou protocolos operacionais citados.
+                    4. P3 (ESTRATÉGIA): Relate o impacto estratégico ou desdobramentos citados na fonte.
                     
-                    DADOS OBRIGATÓRIOS:
-                    - Título de impacto direto baseado no fato.
-                    - FORMATO DA FONTE: "Site.com (DD/MM/AAAA)". Use o domínio principal e a data da matéria.
-                    - Setor (Aeroespacial ou Defesa).
-                    - Escopo (Nacional ou Internacional).
-                    - Campo "image": Extraia a URL da imagem de destaque da notícia original.
+                    DADOS TÉCNICOS:
+                    - Título de impacto (Máx 10 palavras).
+                    - FONTE FORMATADA: "Site.com (DD/MM/AAAA)". Extraia o domínio e a data da publicação.
+                    - Setor: Aeroespacial ou Defesa.
+                    - Escopo: Nacional ou Internacional.
+                    - Campo "image": Identifique a URL da imagem principal/destaque.
 
                     RETORNE APENAS JSON PURO:
                     {
                         "title": "...",
                         "p1": "...", "p2": "...", "p3": "...",
-                        "source_formatted": "Site.com (DD/MM/AAAA)",
+                        "source_formatted": "Dominio.com (DD/MM/AAAA)",
                         "sector": "...", "scope": "...",
                         "image": "URL"
                     }
@@ -271,21 +277,20 @@
                 });
 
                 let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-                const result = JSON.parse(rawText);
+                const cleanText = cleanJson(rawText);
+                const result = JSON.parse(cleanText);
 
                 renderCard(result, url);
 
             } catch (error) {
                 console.error(error);
-                alert("Falha ao processar sinal. Verifique a sua ligação e chave API.");
+                alert("Erro ao processar sinal. Verifique a fonte e sua chave API.");
             } finally {
                 btn.innerHTML = originalBtn;
                 btn.disabled = false;
             }
         }
 
-        // --- RENDERIZAÇÃO ---
         function renderCard(data, url) {
             document.getElementById('outputContainer').classList.remove('hidden');
 
@@ -294,7 +299,6 @@
             document.getElementById('outScope').innerText = data.scope;
             document.getElementById('outSource').innerText = `Fonte: ${data.source_formatted}`;
             
-            // Tratamento da Imagem
             const imgEl = document.getElementById('outImage');
             if(data.image && data.image.startsWith('http')) {
                 imgEl.src = data.image;
@@ -305,9 +309,9 @@
 
             const body = document.getElementById('outBody');
             body.innerHTML = `
-                <p>${data.p1}</p>
-                <p>${data.p2}</p>
-                <p class="text-slate-900 font-bold">${data.p3}</p>
+                <p class="text-slate-600">${data.p1}</p>
+                <p class="text-slate-600">${data.p2}</p>
+                <p class="text-slate-900 font-bold border-l-4 border-slate-900 pl-4 bg-slate-50 py-2 rounded-r-lg">${data.p3}</p>
             `;
 
             const card = document.getElementById('finalCard');
@@ -315,21 +319,18 @@
             
             if(data.sector.toLowerCase().includes('aero')) {
                 card.style.borderLeftColor = '#0284c7';
-                sectorBadge.className = "text-[9px] font-black px-3 py-1 rounded-full uppercase border border-blue-200 bg-blue-50 text-blue-700";
+                sectorBadge.className = "text-[9px] font-black px-3 py-1 rounded-full uppercase border border-blue-200 bg-blue-50 text-blue-700 tracking-wider";
             } else {
-                card.style.borderLeftColor = '#4d7c0f';
-                sectorBadge.className = "text-[9px] font-black px-3 py-1 rounded-full uppercase border border-lime-200 bg-lime-50 text-lime-700";
+                card.style.borderLeftColor = '#4b5320';
+                sectorBadge.className = "text-[9px] font-black px-3 py-1 rounded-full uppercase border border-lime-200 bg-lime-50 text-lime-800 tracking-wider";
             }
 
-            // Geração do QR Code
             const qrDiv = document.getElementById('qrPlace');
             qrDiv.innerHTML = '';
             new QRCode(qrDiv, { 
                 text: url || "https://google.com", 
-                width: 120, 
-                height: 120, 
-                colorDark : "#0f172a", 
-                colorLight : "#ffffff", 
+                width: 128, height: 128, 
+                colorDark : "#0f172a", colorLight : "#ffffff", 
                 correctLevel : QRCode.CorrectLevel.H 
             });
 
@@ -342,7 +343,7 @@
             const source = document.getElementById('outSource').innerText;
             const url = document.getElementById('inputUrl').value;
 
-            const fullText = `*${title}*\n\n${paragraphs.join('\n\n')}\n\n${source}\nLink: ${url}`;
+            const fullText = `*${title}*\n\n${paragraphs.join('\n\n')}\n\n${source}\nLigação: ${url}`;
             
             const el = document.createElement('textarea'); 
             el.value = fullText; 
@@ -351,7 +352,7 @@
             document.execCommand('copy'); 
             document.body.removeChild(el);
             
-            alert("Texto copiado para a área de transferência!");
+            alert("Resumo técnico copiado com sucesso!");
         }
 
         window.onload = () => { if(!getApiKey()) openConfig(); };
